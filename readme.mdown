@@ -4,7 +4,7 @@
 
 Happy December 2019! I'm tackling [Advent of Code 2019](https://adventofcode.com/2019) in Rust, as usual. 
 
-I used Rust for the [2018 AoC](https://github.com/sts10/advent-of-code-2018) and [the 2017 AoC, too](https://github.com/sts10/advent-of-code-2017), but I've never gotten far. My goal is about 15 stars (out of a possible 50).
+I used Rust for the [2018 AoC](https://github.com/sts10/advent-of-code-2018) and [the 2017 AoC, too](https://github.com/sts10/advent-of-code-2017), but I've never gotten far. My goal is to beat my record of 16 stars (out of a possible 50), which I managed back in 2017.
 
 ## How this repo is organized
 

@@ -1,0 +1,105 @@
+# Advent of Code 2019, in Rust
+
+**My solutions to [Advent of Code 2019](https://adventofcode.com/2019), which I'm doing in Rust (again).**
+
+Happy December 2019! I'm tackling [Advent of Code 2019](https://adventofcode.com/2019) in Rust, as usual. 
+
+I used Rust for the [2018 AoC](https://github.com/sts10/advent-of-code-2018) and [the 2017 AoC, too](https://github.com/sts10/advent-of-code-2017), but I've never gotten far. My goal is about 15 stars (out of a possible 50).
+
+## How this repo is organized
+
+The code for each day's challenge (1 through, hopefully-but-probably-not-all-the-way-to, 25) is in a Rust executable in `src/bin`. Thus the code for, say, Day 2's executable is located in `src/bin/day02.rs`. To run the Day 2 executable, from the root directory run `cargo run --bin day02`. To run tests, if there are any, run `cargo test --bin day02`.
+
+The input for each challenge is located in `inputs` and named by the day (so for example, `inputs/day02.txt`).
+
+## Some useful helper functions
+
+A lot of the Advent of Code puzzles require similar io tasks. Here are some functions I use often, sometimes tweaking them. I may throw some or all of them into a file in `src/lib` and import them as needed, but for now I've just been copy-and-pasting them into the executables as I need them.
+
+### `read_by_line`
+
+This one reads a multi-line text file into a Vector. The Vector will be whatever Rust type that Rust's `parse` function gets from the file.
+
+```rust
+// from https://github.com/sts10/eyeoh/blob/master/src/lib.rs#L33
+use std::fs::File;
+use std::io;
+use std::io::BufRead;
+use std::io::BufReader;
+use std::str::FromStr;
+
+fn read_by_line<T: FromStr>(file_path: &str) -> io::Result<Vec<T>> {
+    let mut vec = Vec::new();
+    let f = match File::open(file_path.trim_matches(|c| c == '\'' || c == ' ')) {
+        Ok(res) => res,
+        Err(e) => return Err(e),
+    };
+    let file = BufReader::new(&f);
+    for line in file.lines() {
+        match line?.parse() {
+            Ok(l) => vec.push(l),
+            Err(_e) => {
+                panic!("Error reading a line of the file");
+            }
+        }
+    }
+    Ok(vec)
+}
+```
+
+### `read_string_from_file_to_vector`
+
+If the input file is only one line with tons of characters we're going to need to iterate through, this function is handy. It reads a text file into a Vector of `char`s (characters), which is usually what we want when doing AoC challenges.
+
+```rust
+use std::fs::File;
+use std::io;
+use std::io::prelude::*;
+
+fn read_string_from_file_to_vector(file_path: &str) -> io::Result<Vec<char>> {
+  let mut f = match File::open(file_path.trim_matches(|c| c == '\'' || c == ' ')) {
+    Ok(res) => res,
+    Err(e) => return Err(e),
+  };
+  let mut string_from_file = String::new();
+  f.read_to_string(&mut string_from_file)
+    .expect("something went wrong reading the file");
+
+  let mut vector_of_chars = Vec::new();
+  for c in string_from_file.chars() {
+    vector_of_chars.push(c);
+  }
+  Ok(vector_of_chars)
+}
+```
+
+### `split_and_vectorize`
+
+I found myself often wanting to split a string slice (`&str`) by another string slice and get a vector back. 
+
+```rust
+fn split_and_vectorize<'a>(string_to_split: &'a str, splitter: &str) -> Vec<&'a str> {
+    let split = string_to_split.split(splitter);
+    split.collect::<Vec<&str>>()
+}
+```
+
+Usage:
+
+```rust
+let event_string: &str = "Guard 13 fell asleep at 7:56";
+
+let guard_id: usize = split_and_vectorize(event_string, " ")[1].parse().unwrap();
+println!("guard id is {}", guard_id);
+
+// can nest calls to dial in a bit more
+let hour: u32 = split_and_vectorize(split_and_vectorize(event_string, " ")[5], ":")[0].parse().unwrap();
+println!("At hour {}, guard #{} fell asleep", hour, guard_id);
+
+// Take multiple elements from a split with one call (but 2 lines, including the join)
+let phrase = &split_and_vectorize(event_string, " ")[2..=3];
+let collected_phrase = phrase.join(" ");
+println!("collected phrase is {}", collected_phrase);
+```
+
+To do: have the splitter be a vector of splitters so you found just do `split_and_vectorize(event_string, vec![" ", ":"])[5]` to get `hours`.

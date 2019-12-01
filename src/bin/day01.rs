@@ -7,24 +7,18 @@ use std::str::FromStr;
 fn main() {
     let file_name = "inputs/day01.txt"; // &str (rather than a String)
     let masses: Vec<usize> = read_by_line(file_name).unwrap();
-    // let mut total_fuel = 0;
-    // for mass in masses {
-    //     total_fuel = total_fuel + get_fuel_from_mass(mass);
-    // }
-    // println!("Part 1 total fuel: {}", total_fuel);
-    let mut total_fuel = 0;
+    let mut total_fuel_part_1 = 0;
+    let mut total_fuel_part_2 = 0;
     for mass in masses {
-        total_fuel = total_fuel + get_fuel_from_mass_part_2(mass);
+        total_fuel_part_1 += get_fuel_from_mass(mass);
+        total_fuel_part_2 += get_fuel_from_mass_part_2(mass);
     }
-    println!("Part 2 total fuel: {}", total_fuel);
+    println!("Part 1 total fuel: {}", total_fuel_part_1);
+    println!("Part 2 total fuel: {}", total_fuel_part_2);
 }
 
 fn get_fuel_from_mass(mass: usize) -> isize {
     // take its mass, divide by three, round down, and subtract 2.
-
-    // if ((mass as f64 / 3.0).floor() as isize) - 2 < 2 {
-    //     return 0;
-    // }
     ((mass as f64 / 3.0).floor() as isize) - 2
 }
 
@@ -36,14 +30,8 @@ fn get_fuel_from_mass_part_2(mass: usize) -> usize {
         if this_run < 0 {
             break;
         }
-        total_fuel = total_fuel + this_run as usize;
-        println!("this_run is {}", this_run);
-        println!("total_fuel is now {}", total_fuel);
+        total_fuel += this_run as usize;
         new_mass = this_run;
-
-        // if this_run <= 2 {
-        //     break;
-        // }
     }
     total_fuel
 }
@@ -70,7 +58,6 @@ fn read_by_line<T: FromStr>(file_path: &str) -> io::Result<Vec<T>> {
 #[test]
 fn can_find_fuel_given_mass() {
     assert_eq!(get_fuel_from_mass(12), 2);
-    // assert_eq!(get_fuel_from_mass(5), 2);
     assert_eq!(get_fuel_from_mass(100756), 33583);
 }
 

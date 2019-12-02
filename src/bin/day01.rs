@@ -1,11 +1,6 @@
-use std::fs::File;
-use std::io;
-use std::io::BufRead;
-use std::io::BufReader;
-use std::str::FromStr;
-
+use advent_of_code_2019::read_by_line;
 fn main() {
-    let file_name = "inputs/day01.txt"; // &str (rather than a String)
+    let file_name = "inputs/day01.txt";
     let masses: Vec<usize> = read_by_line(file_name).unwrap();
     let mut total_fuel_part_1 = 0;
     let mut total_fuel_part_2 = 0;
@@ -34,25 +29,6 @@ fn get_fuel_from_mass_part_2(mass: usize) -> usize {
         new_mass = this_run;
     }
     total_fuel
-}
-
-// from https://github.com/sts10/eyeoh/blob/master/src/lib.rs#L33
-fn read_by_line<T: FromStr>(file_path: &str) -> io::Result<Vec<T>> {
-    let mut vec = Vec::new();
-    let f = match File::open(file_path.trim_matches(|c| c == '\'' || c == ' ')) {
-        Ok(res) => res,
-        Err(e) => return Err(e),
-    };
-    let file = BufReader::new(&f);
-    for line in file.lines() {
-        match line?.parse() {
-            Ok(l) => vec.push(l),
-            Err(_e) => {
-                panic!("Error reading a line of the file");
-            }
-        }
-    }
-    Ok(vec)
 }
 
 #[test]

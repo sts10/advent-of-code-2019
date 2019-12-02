@@ -14,15 +14,14 @@ use std::str::FromStr;
 // (from https://github.com/sts10/eyeoh/blob/master/src/lib.rs#L33-L50)
 pub fn read_by_line<T: FromStr>(file_path: &str) -> io::Result<Vec<T>> {
     let mut vec = Vec::new();
-    let f = match File::open(file_path.trim_matches(|c| c == '\'' || c == ' ')) {
-        Ok(res) => res,
-        Err(e) => return Err(e),
-    };
+    let f = File::open(file_path.trim_matches(|c| c == '\'' || c == ' '))?;
     let file = BufReader::new(&f);
     for line in file.lines() {
         match line?.parse() {
             Ok(l) => vec.push(l),
             Err(_e) => {
+                // this is definitely not great, but the Error generated here is of type FromStr, rather than io, so
+                // it'd be difficult to return
                 panic!("Error reading a line of the file");
             }
         }
@@ -35,10 +34,7 @@ pub fn read_by_line<T: FromStr>(file_path: &str) -> io::Result<Vec<T>> {
 // It reads a text file into a Vector of `char`s (characters),
 // which is usually what we want when doing AoC challenges.
 pub fn read_string_from_file_to_vector(file_path: &str) -> io::Result<Vec<char>> {
-    let mut f = match File::open(file_path.trim_matches(|c| c == '\'' || c == ' ')) {
-        Ok(res) => res,
-        Err(e) => return Err(e),
-    };
+    let mut f = File::open(file_path.trim_matches(|c| c == '\'' || c == ' '))?;
     let mut string_from_file = String::new();
     f.read_to_string(&mut string_from_file)
         .expect("something went wrong reading the file");

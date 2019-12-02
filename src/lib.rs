@@ -5,7 +5,13 @@ use std::io::BufRead;
 use std::io::BufReader;
 use std::str::FromStr;
 
-// from https://github.com/sts10/eyeoh/blob/master/src/lib.rs#L33-L50
+// Some helpful functions when doing Advent of Code challenges
+//
+// See tests below for examples of usage.
+
+// Reads a multi-line text file into a Vector.
+// The Vector will be whatever Rust type that Rust's `parse` function gets from the file.
+// (from https://github.com/sts10/eyeoh/blob/master/src/lib.rs#L33-L50)
 pub fn read_by_line<T: FromStr>(file_path: &str) -> io::Result<Vec<T>> {
     let mut vec = Vec::new();
     let f = match File::open(file_path.trim_matches(|c| c == '\'' || c == ' ')) {
@@ -24,6 +30,10 @@ pub fn read_by_line<T: FromStr>(file_path: &str) -> io::Result<Vec<T>> {
     Ok(vec)
 }
 
+// If the input file is only one line with tons of characters
+// we're going to need to iterate through, this function is handy.
+// It reads a text file into a Vector of `char`s (characters),
+// which is usually what we want when doing AoC challenges.
 pub fn read_string_from_file_to_vector(file_path: &str) -> io::Result<Vec<char>> {
     let mut f = match File::open(file_path.trim_matches(|c| c == '\'' || c == ' ')) {
         Ok(res) => res,
@@ -40,12 +50,14 @@ pub fn read_string_from_file_to_vector(file_path: &str) -> io::Result<Vec<char>>
     Ok(vector_of_chars)
 }
 
-// See tests below for examples of usage.
+// I found myself often wanting to split a string slice (`&str`)
+// by another string slice and get a vector back.
 pub fn split_and_vectorize<'a>(string_to_split: &'a str, splitter: &str) -> Vec<&'a str> {
     // let split = string_to_split.split(splitter);
     // split.collect::<Vec<&str>>()
     string_to_split.split(splitter).collect()
 }
+// To do: have the splitter be a vector of splitters so you found just do `split_and_vectorize(event_string, vec![" ", ":"])[5]` to get `hours`.
 
 #[test]
 fn can_read_integers_from_file() {

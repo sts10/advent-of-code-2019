@@ -3,19 +3,32 @@ use std::io;
 use std::io::prelude::*;
 
 fn main() {
+    println!("Part 1: {}", run_it_given_noun_and_verb(12, 2)[0]);
+
+    for this_noun in 0..99 {
+        for this_verb in 0..99 {
+            let this_run = run_it_given_noun_and_verb(this_noun, this_verb);
+            if this_run[0] == 19690720 {
+                println!(
+                    "Found it!\nNoun is {}; Verb is {}\n100 * noun + verb, and thus the answer to part 2 is {}",
+                    this_noun,
+                    this_verb,
+                    100 * this_noun + this_verb
+                );
+            }
+        }
+    }
+}
+
+fn run_it_given_noun_and_verb(noun: usize, verb: usize) -> Vec<usize> {
     let file_name = "inputs/day02.txt";
     let program_string: String = read_string_from_file(file_name).expect("Error reading file");
     let mut program_vec: Vec<usize> =
         parse_cs_string_of_integers(program_string).expect("Error parsing input from file");
-    program_vec[1] = 12;
-    program_vec[2] = 2;
+    program_vec[1] = noun;
+    program_vec[2] = verb;
 
-    let finished_program = process_entire_program(program_vec);
-
-    println!("Finished program is {:?}", finished_program);
-
-    println!("Value at position 0 is {}", finished_program[0]);
-    println!("I've already guessed 509871");
+    process_entire_program(program_vec)
 }
 fn process_entire_program(mut program_vec: Vec<usize>) -> Vec<usize> {
     // build vec of opcodes from chunks of 4
@@ -56,10 +69,10 @@ fn process_entire_program(mut program_vec: Vec<usize>) -> Vec<usize> {
 //     program_vec
 // }
 fn process_opcode(opcode: Vec<usize>, entire_program: &mut Vec<usize>) -> Option<Vec<usize>> {
-    println!(
-        "running opcode {:?} on this program state: {:?}",
-        opcode, entire_program
-    );
+    // println!(
+    //     "running opcode {:?} on this program state: {:?}",
+    //     opcode, entire_program
+    // );
     if opcode[0] == 1 {
         entire_program[opcode[3]] = entire_program[opcode[1]] + entire_program[opcode[2]];
     } else if opcode[0] == 2 {
@@ -120,6 +133,11 @@ fn can_process_multi_code_programs3() {
         parse_cs_string_of_integers(program_string).expect("Error parsing input from file");
     let processed = process_entire_program(program_vec);
     assert_eq!(processed, vec![2, 4, 4, 5, 99, 9801]);
+}
+
+#[test]
+fn can_solve_part_1() {
+    assert_eq!(6730673, run_it_given_noun_and_verb(12, 2)[0]);
 }
 
 #[test]

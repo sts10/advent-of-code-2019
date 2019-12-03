@@ -30,11 +30,12 @@ fn run_it_given_noun_and_verb(noun: usize, verb: usize) -> Vec<usize> {
 
     process_entire_program(program_vec)
 }
+
 fn process_entire_program(mut program_vec: Vec<usize>) -> Vec<usize> {
-    // build vec of opcodes from chunks of 4
+    // First, build an array of size 4 for each opcode (more efficient than vectors)
     for opcode_num in 0..(program_vec.len() / 4) {
         let first_position_of_this_opcode = opcode_num * 4;
-        let opcode = vec![
+        let opcode: [usize; 4] = [
             program_vec[first_position_of_this_opcode],
             program_vec[first_position_of_this_opcode + 1],
             program_vec[first_position_of_this_opcode + 2],
@@ -48,7 +49,7 @@ fn process_entire_program(mut program_vec: Vec<usize>) -> Vec<usize> {
     program_vec
 }
 
-fn process_opcode(opcode: Vec<usize>, entire_program: &mut Vec<usize>) -> Option<Vec<usize>> {
+fn process_opcode(opcode: [usize; 4], entire_program: &mut Vec<usize>) -> Option<Vec<usize>> {
     match opcode[0] {
         1 => entire_program[opcode[3]] = entire_program[opcode[1]] + entire_program[opcode[2]],
         2 => entire_program[opcode[3]] = entire_program[opcode[1]] * entire_program[opcode[2]],
@@ -67,10 +68,8 @@ fn read_string_from_file(file_path: &str) -> io::Result<String> {
 }
 
 fn parse_cs_string_of_integers(s: String) -> Result<Vec<usize>, std::num::ParseIntError> {
-    let vec: Vec<&str> = s.split(',').collect();
-
     let mut vector_of_integers = Vec::new();
-    for num_as_string in vec {
+    for num_as_string in s.split(',') {
         vector_of_integers.push(num_as_string.trim_end().parse::<usize>()?);
     }
     Ok(vector_of_integers)

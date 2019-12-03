@@ -92,7 +92,7 @@ fn parse_cs_string_of_integers(s: String) -> Result<Vec<usize>, std::num::ParseI
 fn can_process_multi_code_programs() {
     let program_string = "1,9,10,3,2,3,11,0,99,30,40,50".to_string();
 
-    let mut program_vec: Vec<usize> =
+    let program_vec: Vec<usize> =
         parse_cs_string_of_integers(program_string).expect("Error parsing input from file");
 
     let processed = process_entire_program(program_vec);
@@ -105,7 +105,7 @@ fn can_process_multi_code_programs() {
 #[test]
 fn can_process_multi_code_programs2() {
     let program_string = "1,1,1,4,99,5,6,0,99".to_string();
-    let mut program_vec: Vec<usize> =
+    let program_vec: Vec<usize> =
         parse_cs_string_of_integers(program_string).expect("Error parsing input from file");
     let processed = process_entire_program(program_vec);
     assert_eq!(processed, vec![30, 1, 1, 4, 2, 5, 6, 0, 99]);
@@ -114,7 +114,7 @@ fn can_process_multi_code_programs2() {
 #[test]
 fn can_process_multi_code_programs3() {
     let program_string = "2,4,4,5,99,0".to_string();
-    let mut program_vec: Vec<usize> =
+    let program_vec: Vec<usize> =
         parse_cs_string_of_integers(program_string).expect("Error parsing input from file");
     let processed = process_entire_program(program_vec);
     assert_eq!(processed, vec![2, 4, 4, 5, 99, 9801]);

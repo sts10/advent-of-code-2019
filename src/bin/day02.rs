@@ -5,8 +5,10 @@ use std::io::prelude::*;
 fn main() {
     let file_name = "inputs/day02.txt";
     let program_string: String = read_string_from_file(file_name).expect("Error reading file");
-    let program_vec: Vec<usize> =
+    let mut program_vec: Vec<usize> =
         parse_cs_string_of_integers(program_string).expect("Error parsing input from file");
+    program_vec[1] = 12;
+    program_vec[2] = 2;
 
     let finished_program = process_entire_program(program_vec);
 
@@ -25,7 +27,7 @@ fn process_entire_program(mut program_vec: Vec<usize>) -> Vec<usize> {
             program_vec[first_position_of_this_opcode + 2],
             program_vec[first_position_of_this_opcode + 3],
         ];
-        program_vec = match process_opcode(opcode.to_vec(), &mut program_vec) {
+        program_vec = match process_opcode(opcode, &mut program_vec) {
             Some(program) => program,
             None => break,
         }

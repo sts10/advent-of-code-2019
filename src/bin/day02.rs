@@ -8,7 +8,7 @@ fn main() {
     for this_noun in 0..99 {
         for this_verb in 0..99 {
             let this_run = run_it_given_noun_and_verb(this_noun, this_verb);
-            if this_run[0] == 19690720 {
+            if this_run[0] == 19_690_720 {
                 println!(
                     "Found it!\nNoun is {}; Verb is {}\n100 * noun + verb, and thus the answer to part 2 is {}",
                     this_noun,
@@ -48,39 +48,12 @@ fn process_entire_program(mut program_vec: Vec<usize>) -> Vec<usize> {
     program_vec
 }
 
-// fn process_entire_program(mut program_vec: Vec<usize>) -> Vec<usize> {
-//     // build vec of opcodes from chunks of 4
-//     let mut vec_of_opcodes: Vec<Vec<usize>> = vec![];
-//     for opcode in program_vec.chunks(4) {
-//         vec_of_opcodes.push(opcode.to_vec());
-//     }
-//     for opcode in vec_of_opcodes {
-//         program_vec = match process_opcode(opcode, program_vec.clone()) {
-//             Some(program) => program,
-//             None => break,
-//         };
-//         vec_of_opcodes = vec![];
-//         println!("---- cleared ----");
-//         for opcode in program_vec.chunks(4) {
-//             vec_of_opcodes.push(opcode.to_vec());
-//             println!("Just added {:?}", opcode);
-//         }
-//     }
-//     program_vec
-// }
 fn process_opcode(opcode: Vec<usize>, entire_program: &mut Vec<usize>) -> Option<Vec<usize>> {
-    // println!(
-    //     "running opcode {:?} on this program state: {:?}",
-    //     opcode, entire_program
-    // );
-    if opcode[0] == 1 {
-        entire_program[opcode[3]] = entire_program[opcode[1]] + entire_program[opcode[2]];
-    } else if opcode[0] == 2 {
-        entire_program[opcode[3]] = entire_program[opcode[1]] * entire_program[opcode[2]];
-    } else if opcode[0] == 99 {
-        return None;
-    } else {
-        panic!("Found invalid opcode!");
+    match opcode[0] {
+        1 => entire_program[opcode[3]] = entire_program[opcode[1]] + entire_program[opcode[2]],
+        2 => entire_program[opcode[3]] = entire_program[opcode[1]] * entire_program[opcode[2]],
+        99 => return None,
+        _ => panic!("Found invalid opcode!"),
     }
     Some(entire_program.to_vec())
 }

@@ -74,8 +74,8 @@ fn place_run(
         'D' => {
             for n in 0..amount {
                 new_panel[starting_point.0 + n][starting_point.1] += number_to_place;
-                new_current_point = (starting_point.0 + amount, starting_point.1);
             }
+            new_current_point = (starting_point.0 + amount, starting_point.1);
         }
         _ => panic!("Bad direction in a run"),
     }

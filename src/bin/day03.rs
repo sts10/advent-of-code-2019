@@ -10,10 +10,16 @@ fn main() {
     // let wire2 = vec!["U62", "R66", "U55", "R34", "D71", "R55", "D58", "R83"];
     // let wire1 = vec![
     //     "R98", "U47", "R26", "D63", "R33", "U87", "L62", "D20", "R33", "U53", "R51",
-    // ];
+    // ]
+    // .iter()
+    // .map(|s| s.to_string())
+    // .collect();
     // let wire2 = vec![
     //     "U98", "R91", "D20", "R16", "D67", "R40", "U7", "R15", "U6", "R7",
-    // ];
+    // ]
+    // .iter()
+    // .map(|s| s.to_string())
+    // .collect();
 
     let file_name = "inputs/day03.txt";
     let wires_as_vec: Vec<String> = read_by_line(file_name).unwrap();
@@ -26,7 +32,7 @@ fn main() {
     let min_cp =
         find_min_cross_point_manhattan_distance(wire1_as_coordinates, wire2_as_coordinates);
     println!("Found min cross point to be {}", min_cp);
-    println!("I think my answer is 841");
+    println!("841 and 839 are too high!");
 }
 
 fn make_coordinates(instructions: Vec<String>) -> Vec<(isize, isize)> {
@@ -35,30 +41,28 @@ fn make_coordinates(instructions: Vec<String>) -> Vec<(isize, isize)> {
     for instruction in instructions {
         let new_starting_point: (isize, isize) =
             this_wire_coordinates[this_wire_coordinates.len() - 1];
-        println!("nwe start is {:?}", new_starting_point);
         let (direction, amount) = get_direction_and_amount(&instruction);
         match direction {
             'R' => {
-                // maybe if I use 3 dots I don't need the+ 1 here?
-                for n in 0..amount + 1 {
+                for n in 0..=amount {
                     this_wire_coordinates
                         .push((new_starting_point.0, new_starting_point.1 + n as isize));
                 }
             }
             'L' => {
-                for n in 0..amount + 1 {
+                for n in 0..=amount {
                     this_wire_coordinates
                         .push((new_starting_point.0, new_starting_point.1 - n as isize));
                 }
             }
             'U' => {
-                for n in 0..amount + 1 {
+                for n in 0..=amount {
                     this_wire_coordinates
                         .push((new_starting_point.0 - n as isize, new_starting_point.1));
                 }
             }
             'D' => {
-                for n in 0..amount + 1 {
+                for n in 0..=amount {
                     this_wire_coordinates
                         .push((new_starting_point.0 + n as isize, new_starting_point.1));
                 }
@@ -68,12 +72,13 @@ fn make_coordinates(instructions: Vec<String>) -> Vec<(isize, isize)> {
     }
     this_wire_coordinates
 }
+
 fn get_direction_and_amount(run: &str) -> (char, usize) {
     let run_as_vec: Vec<char> = run.chars().collect();
     // println!("run_as_vec is {:?}", run_as_vec);
     let direction = run_as_vec[0];
     let amount = &run_as_vec[1..run_as_vec.len()];
-    let amount: Vec<String> = amount.into_iter().map(|c| c.to_string()).collect();
+    let amount: Vec<String> = amount.iter().map(|c| c.to_string()).collect();
     let amount = amount.to_vec().join("").parse::<usize>().unwrap();
     (direction, amount)
 }
@@ -116,12 +121,11 @@ fn find_all_cross_points(
     cross_points
 }
 fn get_manhattan_distance(a: (isize, isize), b: (isize, isize)) -> isize {
-    // isize::abs((a.0 - b.0) as isize) + isize::abs((a.1 - b.1) as isize)
     isize::abs((a.0 as isize - b.0 as isize) as isize)
         + isize::abs((a.1 as isize - b.1 as isize) as isize)
 }
 
-fn read_string_from_file(file_path: &str) -> io::Result<String> {
+fn _read_string_from_file(file_path: &str) -> io::Result<String> {
     let mut f = File::open(file_path.trim_matches(|c| c == '\'' || c == ' '))?;
     let mut string_from_file = String::new();
     f.read_to_string(&mut string_from_file)
@@ -135,13 +139,4 @@ fn split_cs_string(s: String) -> Vec<String> {
         vector_of_strings.push(instruction.trim_end().to_string());
     }
     vector_of_strings
-}
-
-#[test]
-fn can_read_vector_of_integers_from_cs_file() {
-    let file_name = "inputs/day02.txt";
-    let opcode_string: String = read_string_from_file(file_name).unwrap();
-    let opcode_vec: Vec<usize> = parse_cs_string_of_integers(opcode_string).unwrap();
-    assert_eq!(opcode_vec[3], 3);
-    assert_eq!(opcode_vec[opcode_vec.len() - 1], 0);
 }

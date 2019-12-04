@@ -7,19 +7,54 @@ fn main() {
     // let wire2 = vec!["U7", "R6", "D4", "L4"];
     let wire1 = vec!["R75", "D30", "R83", "U83", "L12", "D49", "R71", "U7", "L72"];
     let wire2 = vec!["U62", "R66", "U55", "R34", "D71", "R55", "D58", "R83"];
-    let mut panel: [[usize; 1000]; 1000] = [[0; 1000]; 1000];
-    let starting_point = (1000 / 2, 1000 / 2);
-    println!("Attempting to place wire1");
-    panel = place_wire(wire1, 1, panel, starting_point);
-    println!("Attempting to place wire2");
-    panel = place_wire(wire2, 8, panel, starting_point);
+
+    let wire1_as_coordinates = make_coordinates(wire1);
 
     // println!("Panel is now {:?}", panel);
     // for row in panel.iter() {
     //     println!("{:?}", row);
     // }
-    let min_cp = find_min_cross_point_manhattan_distance(panel, 8, starting_point);
-    println!("Found min cross point to be {}", min_cp);
+    // let min_cp = find_min_cross_point_manhattan_distance(panel, 8, starting_point);
+    // println!("Found min cross point to be {}", min_cp);
+}
+
+fn make_coordinates(instructions: Vec<&str>) -> Vec<(isize, isize)> {
+    let mut this_wire_coordinates = vec![(0 as isize, 0 as isize)];
+
+    let mut instruction_number = 1;
+    for instruction in instructions {
+        let new_starting_point: (isize, isize) = this_wire_coordinates[instruction_number - 1];
+        let (direction, amount) = get_direction_and_amount(instruction);
+        match direction {
+            'R' => {
+                for n in 0..amount {
+                    // new_panel[starting_point.0][starting_point.1 + n] += number_to_place;
+                    this_wire_coordinates
+                        .push((new_starting_point.0, new_starting_point.1 + n as isize));
+                }
+            }
+            'L' => {
+                for n in 0..amount {
+                    this_wire_coordinates
+                        .push((new_starting_point.0, new_starting_point.1 - n as isize));
+                }
+            }
+            'U' => {
+                for n in 0..amount {
+                    this_wire_coordinates
+                        .push((new_starting_point.0 - n as isize, new_starting_point.1));
+                }
+            }
+            'D' => {
+                for n in 0..amount {
+                    this_wire_coordinates
+                        .push((new_starting_point.0 + n as isize, new_starting_point.1));
+                }
+            }
+            _ => panic!("Bad direction in a run"),
+        }
+    }
+    this_wire_coordinates
 }
 
 fn place_wire(

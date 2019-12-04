@@ -1,3 +1,4 @@
+use advent_of_code_2019::read_by_line;
 use std::fs::File;
 use std::io;
 use std::io::prelude::*;
@@ -5,53 +6,59 @@ use std::io::prelude::*;
 fn main() {
     // let wire1 = vec!["R8", "U5", "L5", "D3"];
     // let wire2 = vec!["U7", "R6", "D4", "L4"];
-    let wire1 = vec!["R75", "D30", "R83", "U83", "L12", "D49", "R71", "U7", "L72"];
-    let wire2 = vec!["U62", "R66", "U55", "R34", "D71", "R55", "D58", "R83"];
+    // let wire1 = vec!["R75", "D30", "R83", "U83", "L12", "D49", "R71", "U7", "L72"];
+    // let wire2 = vec!["U62", "R66", "U55", "R34", "D71", "R55", "D58", "R83"];
+    // let wire1 = vec![
+    //     "R98", "U47", "R26", "D63", "R33", "U87", "L62", "D20", "R33", "U53", "R51",
+    // ];
+    // let wire2 = vec![
+    //     "U98", "R91", "D20", "R16", "D67", "R40", "U7", "R15", "U6", "R7",
+    // ];
+
+    let file_name = "inputs/day03.txt";
+    let wires_as_vec: Vec<String> = read_by_line(file_name).unwrap();
+    let wire1 = split_cs_string(wires_as_vec[0].clone());
+    let wire2 = split_cs_string(wires_as_vec[1].clone());
 
     let wire1_as_coordinates = make_coordinates(wire1);
-    println!("wire1_as_coordinates is {:?}", wire1_as_coordinates);
     let wire2_as_coordinates = make_coordinates(wire2);
-    println!("wire2_as_coordinates is {:?}", wire2_as_coordinates);
 
-    // println!("Panel is now {:?}", panel);
-    // for row in panel.iter() {
-    //     println!("{:?}", row);
-    // }
     let min_cp =
         find_min_cross_point_manhattan_distance(wire1_as_coordinates, wire2_as_coordinates);
     println!("Found min cross point to be {}", min_cp);
+    println!("I think my answer is 841");
 }
 
-fn make_coordinates(instructions: Vec<&str>) -> Vec<(isize, isize)> {
+fn make_coordinates(instructions: Vec<String>) -> Vec<(isize, isize)> {
     let mut this_wire_coordinates = vec![(0 as isize, 0 as isize)];
 
     for instruction in instructions {
         let new_starting_point: (isize, isize) =
             this_wire_coordinates[this_wire_coordinates.len() - 1];
         println!("nwe start is {:?}", new_starting_point);
-        let (direction, amount) = get_direction_and_amount(instruction);
+        let (direction, amount) = get_direction_and_amount(&instruction);
         match direction {
             'R' => {
-                for n in 0..amount {
+                // maybe if I use 3 dots I don't need the+ 1 here?
+                for n in 0..amount + 1 {
                     this_wire_coordinates
                         .push((new_starting_point.0, new_starting_point.1 + n as isize));
                 }
-                // new_starting_point = this_wire_coordinates[this_wire_coordinates.len() - 1];
             }
             'L' => {
-                for n in 0..amount {
+                for n in 0..amount + 1 {
                     this_wire_coordinates
                         .push((new_starting_point.0, new_starting_point.1 - n as isize));
                 }
             }
             'U' => {
-                for n in 0..amount {
+                for n in 0..amount + 1 {
                     this_wire_coordinates
                         .push((new_starting_point.0 - n as isize, new_starting_point.1));
                 }
             }
             'D' => {
-                for n in 0..amount {
+                for n in 0..amount + 1 {
                     this_wire_coordinates
                         .push((new_starting_point.0 + n as isize, new_starting_point.1));
                 }
@@ -100,11 +107,9 @@ fn find_all_cross_points(
         for wire2_coordinate in &wire2 {
             if wire1_coordinate.0 == wire2_coordinate.0 && wire1_coordinate.1 == wire2_coordinate.1
             {
-                println!(
-                    "1 is {:?}; 2 is {:?}. Adding {:?}",
-                    wire1_coordinate, wire2_coordinate, wire1_coordinate
-                );
-                cross_points.push(wire1_coordinate);
+                if wire1_coordinate.0 != 0 && wire1_coordinate.1 != 0 {
+                    cross_points.push(wire1_coordinate);
+                }
             }
         }
     }
@@ -124,12 +129,12 @@ fn read_string_from_file(file_path: &str) -> io::Result<String> {
     Ok(string_from_file)
 }
 
-fn parse_cs_string_of_integers(s: String) -> Result<Vec<usize>, std::num::ParseIntError> {
-    let mut vector_of_integers = Vec::new();
-    for num_as_string in s.split(',') {
-        vector_of_integers.push(num_as_string.trim_end().parse::<usize>()?);
+fn split_cs_string(s: String) -> Vec<String> {
+    let mut vector_of_strings = Vec::new();
+    for instruction in s.split(',') {
+        vector_of_strings.push(instruction.trim_end().to_string());
     }
-    Ok(vector_of_integers)
+    vector_of_strings
 }
 
 #[test]

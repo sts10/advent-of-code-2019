@@ -50,12 +50,12 @@ fn process_entire_program(mut program_vec: Vec<usize>) -> Vec<usize> {
 }
 
 fn process_opcode(opcode: [usize; 4], entire_program: &mut Vec<usize>) -> Option<Vec<usize>> {
-    match opcode[0] {
-        1 => entire_program[opcode[3]] = entire_program[opcode[1]] + entire_program[opcode[2]],
-        2 => entire_program[opcode[3]] = entire_program[opcode[1]] * entire_program[opcode[2]],
+    entire_program[opcode[3]] = match opcode[0] {
+        1 => entire_program[opcode[1]] + entire_program[opcode[2]],
+        2 => entire_program[opcode[1]] * entire_program[opcode[2]],
         99 => return None,
         _ => panic!("Found invalid opcode!"),
-    }
+    };
     Some(entire_program.to_vec())
 }
 

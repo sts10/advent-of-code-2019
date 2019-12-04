@@ -9,29 +9,34 @@ fn main() {
     let wire2 = vec!["U62", "R66", "U55", "R34", "D71", "R55", "D58", "R83"];
 
     let wire1_as_coordinates = make_coordinates(wire1);
+    println!("wire1_as_coordinates is {:?}", wire1_as_coordinates);
+    let wire2_as_coordinates = make_coordinates(wire2);
+    println!("wire2_as_coordinates is {:?}", wire2_as_coordinates);
 
     // println!("Panel is now {:?}", panel);
     // for row in panel.iter() {
     //     println!("{:?}", row);
     // }
-    // let min_cp = find_min_cross_point_manhattan_distance(panel, 8, starting_point);
-    // println!("Found min cross point to be {}", min_cp);
+    let min_cp =
+        find_min_cross_point_manhattan_distance(wire1_as_coordinates, wire2_as_coordinates);
+    println!("Found min cross point to be {}", min_cp);
 }
 
 fn make_coordinates(instructions: Vec<&str>) -> Vec<(isize, isize)> {
     let mut this_wire_coordinates = vec![(0 as isize, 0 as isize)];
 
-    let mut instruction_number = 1;
     for instruction in instructions {
-        let new_starting_point: (isize, isize) = this_wire_coordinates[instruction_number - 1];
+        let new_starting_point: (isize, isize) =
+            this_wire_coordinates[this_wire_coordinates.len() - 1];
+        println!("nwe start is {:?}", new_starting_point);
         let (direction, amount) = get_direction_and_amount(instruction);
         match direction {
             'R' => {
                 for n in 0..amount {
-                    // new_panel[starting_point.0][starting_point.1 + n] += number_to_place;
                     this_wire_coordinates
                         .push((new_starting_point.0, new_starting_point.1 + n as isize));
                 }
+                // new_starting_point = this_wire_coordinates[this_wire_coordinates.len() - 1];
             }
             'L' => {
                 for n in 0..amount {
@@ -56,66 +61,6 @@ fn make_coordinates(instructions: Vec<&str>) -> Vec<(isize, isize)> {
     }
     this_wire_coordinates
 }
-
-fn place_wire(
-    wire: Vec<&str>,
-    number_to_place: usize,
-    mut panel: [[usize; 1000]; 1000],
-    arbitrary_central_point: (usize, usize),
-) -> [[usize; 1000]; 1000] {
-    let mut new_starting_point = arbitrary_central_point;
-    let mut runner_counter = 0;
-    for run in wire {
-        let (generated_panel, generated_new_starting_point) =
-            place_run(run, number_to_place, panel, new_starting_point);
-        panel = generated_panel;
-        new_starting_point = generated_new_starting_point;
-        runner_counter += 1;
-        println!("Run counter is now {}", runner_counter);
-    }
-    panel[new_starting_point.0][new_starting_point.1] = number_to_place;
-    panel
-}
-fn place_run(
-    run: &str,
-    number_to_place: usize,
-    panel: [[usize; 1000]; 1000],
-    starting_point: (usize, usize),
-) -> ([[usize; 1000]; 1000], (usize, usize)) {
-    let (direction, amount) = get_direction_and_amount(run);
-    // let mut new_panel = panel.clone();
-    let mut new_panel = panel;
-    let mut new_current_point: (usize, usize) = starting_point;
-    match direction {
-        'R' => {
-            for n in 0..amount {
-                new_panel[starting_point.0][starting_point.1 + n] += number_to_place;
-            }
-            new_current_point = (starting_point.0, starting_point.1 + amount);
-        }
-        'L' => {
-            for n in 0..amount {
-                // try 3 dots?
-                new_panel[starting_point.0][starting_point.1 - n] += number_to_place;
-            }
-            new_current_point = (starting_point.0, starting_point.1 - amount);
-        }
-        'U' => {
-            for n in 0..amount {
-                new_panel[starting_point.0 - n][starting_point.1] += number_to_place;
-            }
-            new_current_point = (starting_point.0 - amount, starting_point.1);
-        }
-        'D' => {
-            for n in 0..amount {
-                new_panel[starting_point.0 + n][starting_point.1] += number_to_place;
-                new_current_point = (starting_point.0 + amount, starting_point.1);
-            }
-        }
-        _ => panic!("Bad direction in a run"),
-    }
-    (new_panel, new_current_point)
-}
 fn get_direction_and_amount(run: &str) -> (char, usize) {
     let run_as_vec: Vec<char> = run.chars().collect();
     // println!("run_as_vec is {:?}", run_as_vec);
@@ -127,15 +72,15 @@ fn get_direction_and_amount(run: &str) -> (char, usize) {
 }
 
 fn find_min_cross_point_manhattan_distance(
-    panel: [[usize; 1000]; 1000],
-    value_to_hunt_for: usize,
-    starting_point: (usize, usize),
+    wire1: Vec<(isize, isize)>,
+    wire2: Vec<(isize, isize)>,
 ) -> isize {
-    let cross_points = find_all_cross_points(panel, value_to_hunt_for);
+    let cross_points = find_all_cross_points(wire1, wire2);
+    println!("cross points are {:?}", cross_points);
     let mut min_cross_point_manhattan_distance = 100000;
     for cross_point in cross_points {
         let this_cross_point_manhattan_distance =
-            get_manhattan_distance(starting_point, cross_point);
+            get_manhattan_distance((0 as isize, 0 as isize), cross_point);
         if this_cross_point_manhattan_distance == 0 {
             continue;
         }
@@ -147,30 +92,25 @@ fn find_min_cross_point_manhattan_distance(
 }
 
 fn find_all_cross_points(
-    panel: [[usize; 1000]; 1000],
-    value_to_hunt_for: usize,
-) -> Vec<(usize, usize)> {
-    let mut cross_points: Vec<(usize, usize)> = vec![];
-    let mut row_number = 0;
-    for row in panel.iter() {
-        let mut column_number = 0;
-        for _square in row.into_iter() {
-            if panel[row_number][column_number] > value_to_hunt_for
-                && panel[row_number][column_number] % value_to_hunt_for != 0
+    wire1: Vec<(isize, isize)>,
+    wire2: Vec<(isize, isize)>,
+) -> Vec<(isize, isize)> {
+    let mut cross_points: Vec<(isize, isize)> = vec![];
+    for wire1_coordinate in wire1 {
+        for wire2_coordinate in &wire2 {
+            if wire1_coordinate.0 == wire2_coordinate.0 && wire1_coordinate.1 == wire2_coordinate.1
             {
                 println!(
-                    "found a new cross-point at {}, {}",
-                    row_number, column_number
+                    "1 is {:?}; 2 is {:?}. Adding {:?}",
+                    wire1_coordinate, wire2_coordinate, wire1_coordinate
                 );
-                cross_points.push((row_number, column_number));
+                cross_points.push(wire1_coordinate);
             }
-            column_number += 1;
         }
-        row_number += 1;
     }
     cross_points
 }
-fn get_manhattan_distance(a: (usize, usize), b: (usize, usize)) -> isize {
+fn get_manhattan_distance(a: (isize, isize), b: (isize, isize)) -> isize {
     // isize::abs((a.0 - b.0) as isize) + isize::abs((a.1 - b.1) as isize)
     isize::abs((a.0 as isize - b.0 as isize) as isize)
         + isize::abs((a.1 as isize - b.1 as isize) as isize)

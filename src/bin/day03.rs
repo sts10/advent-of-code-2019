@@ -7,31 +7,36 @@ fn main() {
     // let wire2 = vec!["U7", "R6", "D4", "L4"];
     let wire1 = vec!["R75", "D30", "R83", "U83", "L12", "D49", "R71", "U7", "L72"];
     let wire2 = vec!["U62", "R66", "U55", "R34", "D71", "R55", "D58", "R83"];
-    let mut panel: [[usize; 1500]; 1500] = [[0; 1500]; 1500];
-    panel = place_wire(wire1, 1, panel);
-    panel = place_wire(wire2, 8, panel);
+    let mut panel: [[usize; 1000]; 1000] = [[0; 1000]; 1000];
+    let starting_point = (1000 / 2, 1000 / 2);
+    println!("Attempting to place wire1");
+    panel = place_wire(wire1, 1, panel, starting_point);
+    println!("Attempting to place wire2");
+    panel = place_wire(wire2, 8, panel, starting_point);
 
     // println!("Panel is now {:?}", panel);
     // for row in panel.iter() {
     //     println!("{:?}", row);
     // }
-    let min_cp = find_min_cross_point_manhattan_distance(panel, 9);
+    let min_cp = find_min_cross_point_manhattan_distance(panel, 8, starting_point);
     println!("Found min cross point to be {}", min_cp);
 }
 
 fn place_wire(
     wire: Vec<&str>,
     number_to_place: usize,
-    mut panel: [[usize; 1500]; 1500],
-) -> [[usize; 1500]; 1500] {
-    let arbitrary_central_point = (8, 1);
+    mut panel: [[usize; 1000]; 1000],
+    arbitrary_central_point: (usize, usize),
+) -> [[usize; 1000]; 1000] {
     let mut new_starting_point = arbitrary_central_point;
+    let mut runner_counter = 0;
     for run in wire {
-        // this is giving the error: "invalid left-hand expression"
         let (generated_panel, generated_new_starting_point) =
             place_run(run, number_to_place, panel, new_starting_point);
         panel = generated_panel;
         new_starting_point = generated_new_starting_point;
+        runner_counter += 1;
+        println!("Run counter is now {}", runner_counter);
     }
     panel[new_starting_point.0][new_starting_point.1] = number_to_place;
     panel
@@ -39,11 +44,12 @@ fn place_wire(
 fn place_run(
     run: &str,
     number_to_place: usize,
-    panel: [[usize; 1500]; 1500],
+    panel: [[usize; 1000]; 1000],
     starting_point: (usize, usize),
-) -> ([[usize; 1500]; 1500], (usize, usize)) {
+) -> ([[usize; 1000]; 1000], (usize, usize)) {
     let (direction, amount) = get_direction_and_amount(run);
-    let mut new_panel = panel.clone();
+    // let mut new_panel = panel.clone();
+    let mut new_panel = panel;
     let mut new_current_point: (usize, usize) = starting_point;
     match direction {
         'R' => {
@@ -79,20 +85,22 @@ fn get_direction_and_amount(run: &str) -> (char, usize) {
     let run_as_vec: Vec<char> = run.chars().collect();
     // println!("run_as_vec is {:?}", run_as_vec);
     let direction = run_as_vec[0];
-    let mut amount = &run_as_vec[1..run_as_vec.len()];
+    let amount = &run_as_vec[1..run_as_vec.len()];
     let amount: Vec<String> = amount.into_iter().map(|c| c.to_string()).collect();
     let amount = amount.to_vec().join("").parse::<usize>().unwrap();
     (direction, amount)
 }
 
 fn find_min_cross_point_manhattan_distance(
-    panel: [[usize; 1500]; 1500],
+    panel: [[usize; 1000]; 1000],
     value_to_hunt_for: usize,
+    starting_point: (usize, usize),
 ) -> isize {
     let cross_points = find_all_cross_points(panel, value_to_hunt_for);
     let mut min_cross_point_manhattan_distance = 100000;
     for cross_point in cross_points {
-        let this_cross_point_manhattan_distance = get_manhattan_distance((8, 1), cross_point);
+        let this_cross_point_manhattan_distance =
+            get_manhattan_distance(starting_point, cross_point);
         if this_cross_point_manhattan_distance == 0 {
             continue;
         }
@@ -104,15 +112,21 @@ fn find_min_cross_point_manhattan_distance(
 }
 
 fn find_all_cross_points(
-    panel: [[usize; 1500]; 1500],
+    panel: [[usize; 1000]; 1000],
     value_to_hunt_for: usize,
 ) -> Vec<(usize, usize)> {
     let mut cross_points: Vec<(usize, usize)> = vec![];
     let mut row_number = 0;
     for row in panel.iter() {
         let mut column_number = 0;
-        for square in row.into_iter() {
-            if panel[row_number][column_number] == value_to_hunt_for {
+        for _square in row.into_iter() {
+            if panel[row_number][column_number] > value_to_hunt_for
+                && panel[row_number][column_number] % value_to_hunt_for != 0
+            {
+                println!(
+                    "found a new cross-point at {}, {}",
+                    row_number, column_number
+                );
                 cross_points.push((row_number, column_number));
             }
             column_number += 1;

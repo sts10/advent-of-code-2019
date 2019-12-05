@@ -4,8 +4,14 @@ use std::io;
 use std::io::prelude::*;
 
 fn main() {
-    // let wire1 = vec!["R8", "U5", "L5", "D3"];
-    // let wire2 = vec!["U7", "R6", "D4", "L4"];
+    // let wire1 = vec!["R8", "U5", "L5", "D3"]
+    //     .iter()
+    //     .map(|s| s.to_string())
+    //     .collect();
+    // let wire2 = vec!["U7", "R6", "D4", "L4"]
+    //     .iter()
+    //     .map(|s| s.to_string())
+    //     .collect();
     // let wire1 = vec!["R75", "D30", "R83", "U83", "L12", "D49", "R71", "U7", "L72"];
     // let wire2 = vec!["U62", "R66", "U55", "R34", "D71", "R55", "D58", "R83"];
     // let wire1 = vec![
@@ -96,6 +102,10 @@ fn find_min_cross_point_manhattan_distance(
         if this_cross_point_manhattan_distance == 0 {
             continue;
         }
+        println!(
+            "Found a cross-point manhattan distance of {}",
+            this_cross_point_manhattan_distance
+        );
         if this_cross_point_manhattan_distance < min_cross_point_manhattan_distance {
             min_cross_point_manhattan_distance = this_cross_point_manhattan_distance;
         }
@@ -125,18 +135,18 @@ fn get_manhattan_distance(a: (isize, isize), b: (isize, isize)) -> isize {
         + isize::abs((a.1 as isize - b.1 as isize) as isize)
 }
 
-fn _read_string_from_file(file_path: &str) -> io::Result<String> {
-    let mut f = File::open(file_path.trim_matches(|c| c == '\'' || c == ' '))?;
-    let mut string_from_file = String::new();
-    f.read_to_string(&mut string_from_file)
-        .expect("something went wrong reading the file");
-    Ok(string_from_file)
-}
-
 fn split_cs_string(s: String) -> Vec<String> {
     let mut vector_of_strings = Vec::new();
     for instruction in s.split(',') {
         vector_of_strings.push(instruction.trim_end().to_string());
     }
     vector_of_strings
+}
+
+fn _read_string_from_file(file_path: &str) -> io::Result<String> {
+    let mut f = File::open(file_path.trim_matches(|c| c == '\'' || c == ' '))?;
+    let mut string_from_file = String::new();
+    f.read_to_string(&mut string_from_file)
+        .expect("something went wrong reading the file");
+    Ok(string_from_file)
 }

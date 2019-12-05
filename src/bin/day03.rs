@@ -50,7 +50,7 @@ fn main() {
 
     let part_2_solution = solve_part_2(wire1_as_coordinates, wire2_as_coordinates);
     println!("part 2 solution is: {}", part_2_solution);
-    println!("12338 is too high, and 12307 isn't correct either!");
+    println!("12338 is too high, and 12307 and 12300 aren't correct either!");
 }
 
 fn make_coordinates(instructions: Vec<String>) -> Vec<(isize, isize)> {
@@ -153,8 +153,8 @@ fn solve_part_2(wire1: Vec<(isize, isize)>, wire2: Vec<(isize, isize)>) -> usize
             if wire1_coordinate == *wire2_coordinate {
                 if !(wire1_coordinate.0 == 0 && wire1_coordinate.1 == 0) {
                     // "including the intersection being considered"
-                    wire1_step_counter += 1;
-                    wire2_step_counter += 1;
+                    // wire1_step_counter += 1;
+                    // wire2_step_counter += 1;
                     cross_points.push((
                         wire1_coordinate.0,
                         wire1_coordinate.1,
@@ -173,7 +173,8 @@ fn solve_part_2(wire1: Vec<(isize, isize)>, wire2: Vec<(isize, isize)>) -> usize
             min_cross_point_steps = cross_point.2;
         }
     }
-    min_cross_point_steps - 2 // for the (0,0) at the beginning
+    // min_cross_point_steps - 2 // for the (0,0) at the beginning
+    min_cross_point_steps
 }
 
 fn get_manhattan_distance(a: (isize, isize), b: (isize, isize)) -> isize {

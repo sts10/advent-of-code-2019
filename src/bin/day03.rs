@@ -120,9 +120,9 @@ fn find_all_cross_points(
     let mut cross_points: Vec<(isize, isize)> = vec![];
     for wire1_coordinate in wire1 {
         for wire2_coordinate in &wire2 {
-            if wire1_coordinate.0 == wire2_coordinate.0 && wire1_coordinate.1 == wire2_coordinate.1
-            {
-                if wire1_coordinate.0 != 0 && wire1_coordinate.1 != 0 {
+            // if wire1_coordinate.0 == wire2_coordinate.0 && wire1_coordinate.1 == wire2_coordinate.1
+            if wire1_coordinate == *wire2_coordinate {
+                if !(wire1_coordinate.0 == 0 && wire1_coordinate.1 == 0) {
                     cross_points.push(wire1_coordinate);
                 }
             }

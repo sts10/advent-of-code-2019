@@ -1,63 +1,96 @@
+use std::convert::TryInto;
 use std::fs::File;
 use std::io;
 use std::io::prelude::*;
 
 fn main() {
-    println!("Part 1: {}", run_it_given_noun_and_verb(12, 2)[0]);
+    let first_element = 10099;
+    let parsed_first_element = parse_first_element(first_element);
+    println!(
+        "opcode: {}\nMode 1st: {}\nMode 2nd: {}\nMode 3rd: {}",
+        parsed_first_element.opcode,
+        parsed_first_element.mode_of_1st_parameter,
+        parsed_first_element.mode_of_2nd_parameter,
+        parsed_first_element.mode_of_3rd_parameter
+    );
+}
 
-    for this_noun in 0..99 {
-        for this_verb in 0..99 {
-            let this_run = run_it_given_noun_and_verb(this_noun, this_verb);
-            if this_run[0] == 19_690_720 {
-                println!(
-                    "Found it!\nNoun is {}; Verb is {}\n100 * noun + verb, and thus the answer to part 2 is {}",
-                    this_noun,
-                    this_verb,
-                    100 * this_noun + this_verb
-                );
-            }
-        }
+struct FirstElement {
+    opcode: usize,
+    mode_of_1st_parameter: usize,
+    mode_of_2nd_parameter: usize,
+    mode_of_3rd_parameter: usize,
+}
+
+fn parse_first_element(first_element: usize) -> FirstElement {
+    let mut first_element_as_vec: Vec<char> = from_int_to_string_vector(first_element);
+    if first_element_as_vec.len() < 6 {
+        first_element_as_vec.insert(0, '0');
+    }
+    println!("Padded first element is {:?}", first_element_as_vec);
+
+    let opcode: usize = first_element_as_vec[4]
+        .to_digit(10)
+        .unwrap()
+        .try_into()
+        .unwrap();
+    let opcode = if opcode == 9 { 99 } else { opcode };
+    println!("op code is {:?}", opcode);
+    let mode_of_1st_parameter = first_element_as_vec[2]
+        .to_string()
+        .parse::<usize>()
+        .unwrap();
+    let mode_of_2nd_parameter = first_element_as_vec[1]
+        .to_string()
+        .parse::<usize>()
+        .unwrap();
+    let mode_of_3rd_parameter = first_element_as_vec[0]
+        .to_string()
+        .parse::<usize>()
+        .unwrap();
+
+    //[opcode, mode_of_1st_parameter, mode_of_2nd_parameter, mode_of_3rd_parameter]
+    FirstElement {
+        opcode,
+        mode_of_1st_parameter,
+        mode_of_2nd_parameter,
+        mode_of_3rd_parameter,
     }
 }
 
-fn run_it_given_noun_and_verb(noun: usize, verb: usize) -> Vec<usize> {
-    let file_name = "inputs/day05.txt";
-    let program_string: String = read_string_from_file(file_name).expect("Error reading file");
-    let mut program_vec: Vec<usize> =
-        parse_cs_string_of_integers(program_string).expect("Error parsing input from file");
-    program_vec[1] = noun;
-    program_vec[2] = verb;
-
-    process_entire_program(program_vec)
+fn from_int_to_string_vector(num: usize) -> Vec<char> {
+    num.to_string().chars().collect()
 }
 
-fn process_entire_program(mut program_vec: Vec<usize>) -> Vec<usize> {
-    // First, build an array of size 4 for each opcode (more efficient than vectors)
-    for opcode_num in 0..(program_vec.len() / 4) {
-        let first_position_of_this_opcode = opcode_num * 4;
-        let opcode: [usize; 4] = [
-            program_vec[first_position_of_this_opcode],
-            program_vec[first_position_of_this_opcode + 1],
-            program_vec[first_position_of_this_opcode + 2],
-            program_vec[first_position_of_this_opcode + 3],
-        ];
-        program_vec = match process_opcode(opcode, &mut program_vec) {
-            Some(program) => program,
-            None => break,
-        }
-    }
-    program_vec
-}
-
-fn process_opcode(opcode: [usize; 4], entire_program: &mut Vec<usize>) -> Option<Vec<usize>> {
-    entire_program[opcode[3]] = match opcode[0] {
-        1 => entire_program[opcode[1]] + entire_program[opcode[2]],
-        2 => entire_program[opcode[1]] * entire_program[opcode[2]],
+fn _process_instruction(
+    instruction: [usize; 4],
+    entire_program: &mut Vec<usize>,
+) -> Option<Vec<usize>> {
+    entire_program[instruction[3]] = match instruction[0] {
+        1 => entire_program[instruction[1]] + entire_program[instruction[2]],
+        2 => entire_program[instruction[1]] * entire_program[instruction[2]],
         99 => return None,
-        _ => panic!("Found invalid opcode!"),
+        _ => panic!("Found invalid instruction!"),
     };
     Some(entire_program.to_vec())
 }
+
+// fn process_entire_program(mut program_vec: Vec<usize>) -> Vec<usize> {
+//     for opcode_num in 0..(program_vec.len() / 4) {
+//         let first_position_of_this_opcode = opcode_num * 4;
+//         let opcode: [usize; 4] = [
+//             program_vec[first_position_of_this_opcode],
+//             program_vec[first_position_of_this_opcode + 1],
+//             program_vec[first_position_of_this_opcode + 2],
+//             program_vec[first_position_of_this_opcode + 3],
+//         ];
+//         program_vec = match process_opcode(opcode, &mut program_vec) {
+//             Some(program) => program,
+//             None => break,
+//         }
+//     }
+//     program_vec
+// }
 
 fn read_string_from_file(file_path: &str) -> io::Result<String> {
     let mut f = File::open(file_path.trim_matches(|c| c == '\'' || c == ' '))?;
